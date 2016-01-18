@@ -1,0 +1,38 @@
+{
+  "name": "stupid-sprite",
+  "version": "1.0.0",
+  "description": "A simple sprite lib",
+  "main": "./sprite.js",
+  "scripts": {
+    "test": "browserify test/*.js | tape-run --render=\"faucet\""
+  },
+  "devDependencies": {
+    "browserify": "^12.0.1",
+    "faucet": "^0.0.1",
+    "gulp": "^3.9.0",
+    "gulp-livereload": "^3.8.1",
+    "stupid-singleton": "^1.0.0",
+    "stupid-tick": "^1.1.0",
+    "tap-dot": "^1.0.0",
+    "tape": "^4.2.2",
+    "tape-run": "^2.1.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.6.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/StupidStudio/stupid-sprite.git"
+  },
+  "author": "David Adalberth Andersen <david@stupid-studio.com> (http://stupid-studio.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/StupidStudio/stupid-sprite/issues"
+  },
+  "homepage": "https://github.com/StupidStudio/stupid-sprite#readme",
+  "dependencies": {
+    "stupid-deferred": "^1.0.3",
+    "stupid-imagesloader": "^1.0.0",
+    "stupid-iterator": "^1.1.0"
+  }
+}
