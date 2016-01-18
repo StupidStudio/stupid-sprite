@@ -4,26 +4,26 @@ var Sprite = require('../../sprite');
 document.addEventListener("DOMContentLoaded", function(event) {
 	var canvas = document.querySelector('canvas');
 	var images = [
-		'images/david_01.png',
-		'images/david_02.png',
-		'images/david_03.png',
-		'images/david_04.png',
+		'images/bjarne_01.png',
+		'images/bjarne_02.png',
+		'images/bjarne_03.png',
+		'images/bjarne_04.png',
 	];
 	var sprite = Sprite({
 		tick:tick, 
 		canvas: canvas,
 		loop:true
 	});
+	
+	window.sprite = sprite;
 
 	sprite.load(images).success(function(){
 		sprite.play();
-		// setTimeout(function(){
-		// 	sprite.pause();
-		// }, 500);
-		// setTimeout(function(){
-		// 	sprite.play();
-		// }, 1000);
 	});
+
+	sprite.on('ended', function(){
+		console.log("Sprite -> End");
+	})
 
 	
 });

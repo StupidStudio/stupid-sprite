@@ -1,6 +1,7 @@
 var Iterator = require('stupid-iterator');
 var Imagesloader = require('stupid-imagesloader');
 var Deferred = require('stupid-deferred'); 
+var Event = require('stupid-event');
 
 /**
  * Sprite
@@ -38,9 +39,14 @@ function Sprite(opts){
 	var imagesLoader = Imagesloader();
 
 	/**
+	 * @define {Event} Event system
+	 */
+	var event = Event();
+
+	/**
 	 * @define {boolean} Should sprite loop
 	 */
-	var loop = opts.loop === undefined ? true : opts.loop;
+	var loopBOOL = opts.loop === undefined ? true : opts.loop;
 
 	/**
 	 * @define {array} Image array
@@ -76,6 +82,11 @@ function Sprite(opts){
 	 * @define {boolean} IsPlaying Boolean
 	 */
 	var isPlayingBOOL = false;
+
+	/**
+	 * @define {boolean} Reserve
+	 */
+	var isReverseBOOL = false;
 
 	/**
 	 * Load images
@@ -134,6 +145,7 @@ function Sprite(opts){
 		 */
 		tick.add(update);
 		isPlayingBOOL = true;
+		event.trigger('started');
 	}
 
 	/**
@@ -147,6 +159,7 @@ function Sprite(opts){
 		 */
 		tick.remove(update);
 		isPlayingBOOL = false;
+		event.trigger('paused');
 	}
 
 	/**
@@ -198,41 +211,61 @@ function Sprite(opts){
 		ctx.drawImage(current, 0, frameOffset);
 
 		/**
-		 * Move the image up by substracting frameHeight
-		 * if the frameOffset is heigher than the current image
-		 * set current to next image
+		 * Move image foward or backwards
 		 */
-		frameOffset -= frameHeight;
-		frameOffset %= current.height;
-		if(frameOffset === 0) current = iterator.next(current);
+		if(!isReverseBOOL){
+			forward();	
+		}else{
+			backward();
+		}
+	}
 
+	function backward(){
 		/**
-		 * Check if the images has looped
+		 * If frameOffset is 0
+		 * set current and frameOffset to prev and current height
 		 */
-		if(!Iterator.nextOrFalse(prev, images) 
-		&& !Iterator.prevOrFalse(current, images)
-		&& frameOffset === 0){
-			/**
-			 * If loop is set to false
-			 * then pause the sprite
-			 */
-			if(!loop) pause();
+		if(frameOffset === 0){
+			current = iterator.prev(current);
+			frameOffset = current.height * -1;
 		}
 
 		/**
-		 * This is use to check if the 
-		 * sprite has looped
+		 * Iterate frameOffset with frameHeight
 		 */
-		prev = current;
+		frameOffset += frameHeight;
+
+		/**
+		 * If current is first and frameOffset 0
+		 * trigger ended and if Loop false then pause
+		 */
+		if(iterator.isFirst() && frameOffset === 0){
+			if(!loopBOOL) pause();
+			event.trigger('ended');
+		} 
 	}
 
-	/**
-	 * Is sprite playing
-	 * @example sprite.isPlaying()
-	 * @return {boolean} isPlayingBOOL
-	 */
-	function isPlaying(){
-		return isPlayingBOOL;
+	function forward(){
+		/**
+		 * Iterate frameOffset with frameHeight
+		 * if larger the current.height the set to 0
+		 */
+		frameOffset -= frameHeight;
+		frameOffset %= current.height;
+
+		/**
+		 * If frameOffset equals 0
+		 * set current to next
+		 * and if first in array the trigger ended
+		 * and trigger pause if loop false
+		 */
+		if(frameOffset === 0){
+			current = iterator.next(current);
+			if(iterator.isFirst()){
+				if(!loopBOOL) pause();
+				event.trigger('ended');
+			} 
+		}
 	}
 
 	/**
@@ -274,6 +307,39 @@ function Sprite(opts){
 		isPlayingBOOL = true;
 	}
 
+	/**
+	 * Is sprite playing
+	 * @example sprite.isPlaying()
+	 * @return {boolean} isPlayingBOOL
+	 */
+	function isPlaying(){
+		return isPlayingBOOL;
+	}
+
+	/**
+	 * Reverse
+	 * @example sprite.reverse()
+	 */
+	function reverse(_bool){
+		if(_bool != undefined){
+			isReverseBOOL = _bool;
+		}else{
+			isReverseBOOL = !isReverseBOOL;
+		}
+	}
+
+	/**
+	 * Loop
+	 * @example sprite.loop()
+	 */
+	function loop(_bool){
+		if(_bool != undefined){
+			loopBOOL = _bool;
+		}else{
+			loopBOOL = !loopBOOL;
+		}
+	}
+
 	/*
 	* Public
 	*/
@@ -284,6 +350,11 @@ function Sprite(opts){
 	self.pause = pause;
 	self.stop = stop;	
 	self.reset = reset;	
+
+	self.on = event.on;
+	self.reverse = reverse;
+	self.loop = loop;
+
 	self.isPlaying = isPlaying;
 
 	return self;

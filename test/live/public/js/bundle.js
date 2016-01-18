@@ -289,6 +289,8 @@ function Event(opts){
 /** @export */
 module.exports = Event;
 },{}],3:[function(require,module,exports){
+arguments[4][2][0].apply(exports,arguments)
+},{"dup":2}],4:[function(require,module,exports){
 var Deferred = require('stupid-deferred')
 var Imageloader = require('stupid-imageloader');
 
@@ -440,11 +442,11 @@ function Imagesloader(opts){
 
 /** @export */
 module.exports = Imagesloader;
-},{"stupid-deferred":4,"stupid-imageloader":6}],4:[function(require,module,exports){
+},{"stupid-deferred":5,"stupid-imageloader":7}],5:[function(require,module,exports){
 arguments[4][1][0].apply(exports,arguments)
-},{"dup":1,"stupid-event":5}],5:[function(require,module,exports){
+},{"dup":1,"stupid-event":6}],6:[function(require,module,exports){
 arguments[4][2][0].apply(exports,arguments)
-},{"dup":2}],6:[function(require,module,exports){
+},{"dup":2}],7:[function(require,module,exports){
 var Deferred = require('stupid-deferred');
 
 /**
@@ -521,7 +523,7 @@ function Imageloader(opts){
 
 /** @export */
 module.exports = Imageloader; 
-},{"stupid-deferred":4}],7:[function(require,module,exports){
+},{"stupid-deferred":5}],8:[function(require,module,exports){
 /**
  * Iterator iterates over a collection
  * @example var current = iterator.next(current, collection);
@@ -741,7 +743,7 @@ var iterator = {
 
 /** @export */
 module.exports = iterator;
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /**
  * @fileoverview JS Singleton constructor
  * @author david@stupid-studio.com (David Adalberth Andersen)
@@ -787,7 +789,7 @@ function Singleton(moduleConstructor){
 
 /** @export */
 module.exports = Singleton;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /**
  * Call controller
  */
@@ -868,7 +870,7 @@ var callctrl = {
 /** @export */
 module.exports = callctrl;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /**
  * @fileoverview Tick RAF controller
  * @author david@stupid-studio.com (David Adalberth Andersen)
@@ -1036,10 +1038,11 @@ function Tick(opts) {
 
 /** @export */
 module.exports = Tick;
-},{"stupid-callctrl":9}],11:[function(require,module,exports){
+},{"stupid-callctrl":10}],12:[function(require,module,exports){
 var Iterator = require('stupid-iterator');
 var Imagesloader = require('stupid-imagesloader');
 var Deferred = require('stupid-deferred'); 
+var Event = require('stupid-event');
 
 /**
  * Sprite
@@ -1077,9 +1080,14 @@ function Sprite(opts){
 	var imagesLoader = Imagesloader();
 
 	/**
+	 * @define {Event} Event system
+	 */
+	var event = Event();
+
+	/**
 	 * @define {boolean} Should sprite loop
 	 */
-	var loop = opts.loop === undefined ? true : opts.loop;
+	var loopBOOL = opts.loop === undefined ? true : opts.loop;
 
 	/**
 	 * @define {array} Image array
@@ -1115,6 +1123,11 @@ function Sprite(opts){
 	 * @define {boolean} IsPlaying Boolean
 	 */
 	var isPlayingBOOL = false;
+
+	/**
+	 * @define {boolean} Reserve
+	 */
+	var isReverseBOOL = false;
 
 	/**
 	 * Load images
@@ -1173,6 +1186,7 @@ function Sprite(opts){
 		 */
 		tick.add(update);
 		isPlayingBOOL = true;
+		event.trigger('started');
 	}
 
 	/**
@@ -1186,6 +1200,7 @@ function Sprite(opts){
 		 */
 		tick.remove(update);
 		isPlayingBOOL = false;
+		event.trigger('paused');
 	}
 
 	/**
@@ -1237,41 +1252,61 @@ function Sprite(opts){
 		ctx.drawImage(current, 0, frameOffset);
 
 		/**
-		 * Move the image up by substracting frameHeight
-		 * if the frameOffset is heigher than the current image
-		 * set current to next image
+		 * Move image foward or backwards
 		 */
-		frameOffset -= frameHeight;
-		frameOffset %= current.height;
-		if(frameOffset === 0) current = iterator.next(current);
+		if(!isReverseBOOL){
+			forward();	
+		}else{
+			backward();
+		}
+	}
 
+	function backward(){
 		/**
-		 * Check if the images has looped
+		 * If frameOffset is 0
+		 * set current and frameOffset to prev and current height
 		 */
-		if(!Iterator.nextOrFalse(prev, images) 
-		&& !Iterator.prevOrFalse(current, images)
-		&& frameOffset === 0){
-			/**
-			 * If loop is set to false
-			 * then pause the sprite
-			 */
-			if(!loop) pause();
+		if(frameOffset === 0){
+			current = iterator.prev(current);
+			frameOffset = current.height * -1;
 		}
 
 		/**
-		 * This is use to check if the 
-		 * sprite has looped
+		 * Iterate frameOffset with frameHeight
 		 */
-		prev = current;
+		frameOffset += frameHeight;
+
+		/**
+		 * If current is first and frameOffset 0
+		 * trigger ended and if Loop false then pause
+		 */
+		if(iterator.isFirst() && frameOffset === 0){
+			if(!loopBOOL) pause();
+			event.trigger('ended');
+		} 
 	}
 
-	/**
-	 * Is sprite playing
-	 * @example sprite.isPlaying()
-	 * @return {boolean} isPlayingBOOL
-	 */
-	function isPlaying(){
-		return isPlayingBOOL;
+	function forward(){
+		/**
+		 * Iterate frameOffset with frameHeight
+		 * if larger the current.height the set to 0
+		 */
+		frameOffset -= frameHeight;
+		frameOffset %= current.height;
+
+		/**
+		 * If frameOffset equals 0
+		 * set current to next
+		 * and if first in array the trigger ended
+		 * and trigger pause if loop false
+		 */
+		if(frameOffset === 0){
+			current = iterator.next(current);
+			if(iterator.isFirst()){
+				if(!loopBOOL) pause();
+				event.trigger('ended');
+			} 
+		}
 	}
 
 	/**
@@ -1313,6 +1348,39 @@ function Sprite(opts){
 		isPlayingBOOL = true;
 	}
 
+	/**
+	 * Is sprite playing
+	 * @example sprite.isPlaying()
+	 * @return {boolean} isPlayingBOOL
+	 */
+	function isPlaying(){
+		return isPlayingBOOL;
+	}
+
+	/**
+	 * Reverse
+	 * @example sprite.reverse()
+	 */
+	function reverse(_bool){
+		if(_bool != undefined){
+			isReverseBOOL = _bool;
+		}else{
+			isReverseBOOL = !isReverseBOOL;
+		}
+	}
+
+	/**
+	 * Loop
+	 * @example sprite.loop()
+	 */
+	function loop(_bool){
+		if(_bool != undefined){
+			loopBOOL = _bool;
+		}else{
+			loopBOOL = !loopBOOL;
+		}
+	}
+
 	/*
 	* Public
 	*/
@@ -1323,44 +1391,49 @@ function Sprite(opts){
 	self.pause = pause;
 	self.stop = stop;	
 	self.reset = reset;	
+
+	self.on = event.on;
+	self.reverse = reverse;
+	self.loop = loop;
+
 	self.isPlaying = isPlaying;
 
 	return self;
 }
 
 module.exports = Sprite;
-},{"stupid-deferred":1,"stupid-imagesloader":3,"stupid-iterator":7}],12:[function(require,module,exports){
+},{"stupid-deferred":1,"stupid-event":3,"stupid-imagesloader":4,"stupid-iterator":8}],13:[function(require,module,exports){
 var tick = require('./tick24').getInstance({fps:24});
 var Sprite = require('../../sprite');
 
 document.addEventListener("DOMContentLoaded", function(event) {
 	var canvas = document.querySelector('canvas');
 	var images = [
-		'images/david_01.png',
-		'images/david_02.png',
-		'images/david_03.png',
-		'images/david_04.png',
+		'images/bjarne_01.png',
+		'images/bjarne_02.png',
+		'images/bjarne_03.png',
+		'images/bjarne_04.png',
 	];
 	var sprite = Sprite({
 		tick:tick, 
 		canvas: canvas,
 		loop:true
 	});
+	
+	window.sprite = sprite;
 
 	sprite.load(images).success(function(){
 		sprite.play();
-		// setTimeout(function(){
-		// 	sprite.pause();
-		// }, 500);
-		// setTimeout(function(){
-		// 	sprite.play();
-		// }, 1000);
 	});
+
+	sprite.on('ended', function(){
+		console.log("Sprite -> End");
+	})
 
 	
 });
-},{"../../sprite":11,"./tick24":13}],13:[function(require,module,exports){
+},{"../../sprite":12,"./tick24":14}],14:[function(require,module,exports){
 var Singleton = require('stupid-singleton');
 var Tick = require('stupid-tick');
 module.exports = Singleton(Tick); 
-},{"stupid-singleton":8,"stupid-tick":10}]},{},[12]);
+},{"stupid-singleton":9,"stupid-tick":11}]},{},[13]);

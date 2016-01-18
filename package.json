@@ -1,6 +1,6 @@
 {
   "name": "stupid-sprite",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A simple sprite lib",
   "main": "./sprite.js",
   "scripts": {
@@ -32,6 +32,7 @@
   "homepage": "https://github.com/StupidStudio/stupid-sprite#readme",
   "dependencies": {
     "stupid-deferred": "^1.0.3",
+    "stupid-event": "^1.1.0",
     "stupid-imagesloader": "^1.0.0",
     "stupid-iterator": "^1.1.0"
   }
