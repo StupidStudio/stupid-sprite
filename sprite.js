@@ -69,11 +69,6 @@ function Sprite(opts){
 	var current;
 
 	/**
-	 * @define {image} Previous image
-	 */
-	var prev;
-
-	/**
 	 * @define {Iterator} Iterator object
 	 */
 	var iterator;
@@ -112,17 +107,17 @@ function Sprite(opts){
 			 * Create Iterator object and set current to first image
 			 */
 			iterator = Iterator.create(images[0], images);
-			current = images[0];
+			current = iterator.get();
 
 			/**
 			 * Set frameHeight to images width if not set
 			 */
-			if(!frameHeight) frameHeight = images[0].width;
+			if(!frameHeight) frameHeight = current.width;
 
 			/**
 			 * Set canvas height to images height
 			 */
-			canvas.width = images[0].width;
+			canvas.width = current.width;
 			canvas.height = frameHeight;
 
 			/**
@@ -172,7 +167,6 @@ function Sprite(opts){
 		 * Set current to first image
 		 */
 		current = images[0];
-		prev = false;
 		frame = 0;
 	}
 

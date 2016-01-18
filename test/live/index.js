@@ -9,21 +9,23 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		'images/bjarne_03.png',
 		'images/bjarne_04.png',
 	];
+
 	var sprite = Sprite({
 		tick:tick, 
-		canvas: canvas,
-		loop:true
+		canvas: canvas
 	});
 	
-	window.sprite = sprite;
-
-	sprite.load(images).success(function(){
+	sprite
+	.load(images)
+	.success(function(){
 		sprite.play();
 	});
 
 	sprite.on('ended', function(){
 		console.log("Sprite -> End");
-	})
+	});
+
+	window.sprite = sprite;
 
 	
 });
