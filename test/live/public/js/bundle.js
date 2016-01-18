@@ -1041,117 +1041,276 @@ var Iterator = require('stupid-iterator');
 var Imagesloader = require('stupid-imagesloader');
 var Deferred = require('stupid-deferred'); 
 
+/**
+ * Sprite
+ * @constructor
+ */
 function Sprite(opts){
- 	var self = {};
-	var opts = opts || {};
+ 	/**
+     * @define {object} Collection of public methods.
+     */
+    var self = {};
+
+    /**
+     * @define {object} Options for the constructor 
+     */
+    var opts = opts || {};
+
+    /**
+     * @define {element} Canvas element
+     */
 	var canvas = opts.canvas;
-	var tick = opts.tick;
-	var loop = opts.loop === undefined ? true : opts.loop;
+
+	/**
+	 * @define {element} Canvas 2d context
+	 */
 	var ctx = canvas.getContext('2d');
+
+	/**
+	 * @define {Tick} Tick object
+	 */
+	var tick = opts.tick;
+	
+	/**
+	 * @define {Imagesloader} Create a image loader object
+	 */
 	var imagesLoader = Imagesloader();
 
+	/**
+	 * @define {boolean} Should sprite loop
+	 */
+	var loop = opts.loop === undefined ? true : opts.loop;
+
+	/**
+	 * @define {array} Image array
+	 */
 	var images;
-	var offset = opts.offset;
-	var frame = 0;
+
+	/**
+	 * @define {number} Single image frame height
+	 */
+	var frameHeight = opts.frameHeight;
+
+	/**
+	 * @define {number} Frame offset
+	 */
+	var frameOffset = 0;
+
+	/**
+	 * @define {image} Current image
+	 */
 	var current;
+
+	/**
+	 * @define {image} Previous image
+	 */
 	var prev;
+
+	/**
+	 * @define {Iterator} Iterator object
+	 */
 	var iterator;
+
+	/**
+	 * @define {boolean} IsPlaying Boolean
+	 */
 	var isPlayingBOOL = false;
 
-	/*
-	* Private
-	*/
-
-	function init(){
-		
-	}
-
-	function load(_imgsArray){
+	/**
+	 * Load images
+	 * @example sprite.load(array).success(function)
+	 * @param {array} _urls An array of url strings 
+	 * @config {Deferred} def Create deferred object
+	 * @return {Deferred Promise} Return deferred promise
+	 */
+	function load(_urls){
 		var def = Deferred();
 
-		imagesLoader.load(_imgsArray).success(function(_imgs){
+		/**
+		 * Load images
+		 */
+		imagesLoader.load(_urls).success(function(_imgs){
 
+			/**
+			 * Set _imgs to images 
+			 */
 			images = _imgs;
 			
+			/**
+			 * Create Iterator object and set current to first image
+			 */
 			iterator = Iterator.create(images[0], images);
 			current = images[0];
 
+			/**
+			 * Set frameHeight to images width if not set
+			 */
+			if(!frameHeight) frameHeight = images[0].width;
+
+			/**
+			 * Set canvas height to images height
+			 */
 			canvas.width = images[0].width;
-			canvas.height = images[0].width;
+			canvas.height = frameHeight;
 
-			if(!offset) offset = images[0].width;
-
+			/**
+			 * Resolve deferred when images is loaded
+			 */
 			def.resolve();
 		});
 
 		return def.promise;
 	}
 
-	function play(_frame){
+	/**
+	 * Play sprite
+	 * @example sprite.play()
+	 */
+	function play(){
+		/**
+		 * Add to tick object
+		 * set isPlaying to true
+		 */
 		tick.add(update);
 		isPlayingBOOL = true;
 	}
 
+	/**
+	 * Pause sprite
+	 * @example sprite.pause()
+	 */
 	function pause(){
+		/**
+		 * Remove object from tick
+		 * set isPlaying to false
+		 */
 		tick.remove(update);
 		isPlayingBOOL = false;
 	}
 
-	function playFrom(_frame){
-		var index = _frame * offset;
-		var offset = 0;
-		for (var i = 0; i < images.length; i++) {
-			offset += images[i].height;
-			if(index < offset){
-				 current = images[i];
-				 frame = index % current.height;
-				 break;
-			}
-		};
-		tick.add(update);
-		isPlayingBOOL = true;
-	}
-
-
+	/**
+	 * Reset sprite
+	 * @example sprite.reset()
+	 */
 	function reset(){
+		/**
+		 * Reset to sprite to reset
+		 * Set current to first image
+		 */
 		current = images[0];
 		prev = false;
 		frame = 0;
 	}
 
+	/**
+	 * Stop sprite
+	 * @example sprite.stop()
+	 */
 	function stop(){
 		pause();
 		reset()
 		update();
 	}
 
+	/**
+	 * Update method for the tick
+	 */
 	function update(){
 		clear();
 		draw();
 	}
 
+	/**
+	 * Clear the canvas before drawing
+	 */
 	function clear(){
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 	}
 
+	/**
+	 * Draw the images to the canvas
+	 */
 	function draw(){
-		ctx.drawImage(current, 0, frame);
+		/**
+		 * Draw image with frameOffset
+		 */
+		ctx.drawImage(current, 0, frameOffset);
 
-		frame -= offset;
-		frame %= current.height;
-		if(frame === 0) current = iterator.next(current);
+		/**
+		 * Move the image up by substracting frameHeight
+		 * if the frameOffset is heigher than the current image
+		 * set current to next image
+		 */
+		frameOffset -= frameHeight;
+		frameOffset %= current.height;
+		if(frameOffset === 0) current = iterator.next(current);
 
+		/**
+		 * Check if the images has looped
+		 */
 		if(!Iterator.nextOrFalse(prev, images) 
 		&& !Iterator.prevOrFalse(current, images)
-		&& frame === 0){
+		&& frameOffset === 0){
+			/**
+			 * If loop is set to false
+			 * then pause the sprite
+			 */
 			if(!loop) pause();
 		}
 
+		/**
+		 * This is use to check if the 
+		 * sprite has looped
+		 */
 		prev = current;
 	}
 
+	/**
+	 * Is sprite playing
+	 * @example sprite.isPlaying()
+	 * @return {boolean} isPlayingBOOL
+	 */
 	function isPlaying(){
 		return isPlayingBOOL;
+	}
+
+	/**
+	 * playFrom
+	 * @example sprite.playFrom(24)
+	 * @param {number} _frame Frame number to stat from
+	 */
+	function playFrom(_frame){
+		/**
+		 * Calc frameNumber 
+		 */
+		var frameNumber = _frame * frameHeight;
+		var offset = 0;
+
+		/**
+		 * Loop through images to find 
+		 * next current image to start from
+		 */
+		for (var i = 0; i < images.length; i++) {
+			offset += images[i].height;
+			/**
+			 * If frameNumber is less than the added images height
+			 * the set the current image, and set frameOffset and iterator
+			 * to the new current
+			 */
+			if(frameNumber < offset){
+				current = images[i];
+				iterator.set(current);
+				frameOffset = frameNumber % current.height;
+				break;
+			}
+		};
+
+		/**
+		 * Start tick
+		 * And set boolean
+		 */
+		tick.add(update);
+		isPlayingBOOL = true;
 	}
 
 	/*
@@ -1159,7 +1318,6 @@ function Sprite(opts){
 	*/
 
 	self.load = load;
-	self.init = init;
 	self.play = play;	
 	self.playFrom = playFrom;
 	self.pause = pause;
@@ -1186,17 +1344,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	var sprite = Sprite({
 		tick:tick, 
 		canvas: canvas,
-		loop:false
+		loop:true
 	});
 
 	sprite.load(images).success(function(){
 		sprite.play();
-		setTimeout(function(){
-			sprite.pause();
-		}, 500);
-		setTimeout(function(){
-			sprite.play();
-		}, 1000);
+		// setTimeout(function(){
+		// 	sprite.pause();
+		// }, 500);
+		// setTimeout(function(){
+		// 	sprite.play();
+		// }, 1000);
 	});
 
 	

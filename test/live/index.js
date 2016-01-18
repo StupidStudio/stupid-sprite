@@ -12,17 +12,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	var sprite = Sprite({
 		tick:tick, 
 		canvas: canvas,
-		loop:false
+		loop:true
 	});
 
 	sprite.load(images).success(function(){
 		sprite.play();
-		setTimeout(function(){
-			sprite.pause();
-		}, 500);
-		setTimeout(function(){
-			sprite.play();
-		}, 1000);
+		// setTimeout(function(){
+		// 	sprite.pause();
+		// }, 500);
+		// setTimeout(function(){
+		// 	sprite.play();
+		// }, 1000);
 	});
 
 	
