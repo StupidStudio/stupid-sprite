@@ -1397,7 +1397,7 @@ function Sprite(opts){
 
 module.exports = Sprite;
 },{"stupid-deferred":1,"stupid-event":3,"stupid-imagesloader":4,"stupid-iterator":8}],13:[function(require,module,exports){
-var tick = require('./tick24').getInstance({fps:24});
+var tick = require('../tick24').getInstance({fps:24});
 var Sprite = require('../../sprite');
 
 document.addEventListener("DOMContentLoaded", function(event) {
@@ -1428,7 +1428,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 	
 });
-},{"../../sprite":12,"./tick24":14}],14:[function(require,module,exports){
+},{"../../sprite":12,"../tick24":14}],14:[function(require,module,exports){
 var Singleton = require('stupid-singleton');
 var Tick = require('stupid-tick');
 module.exports = Singleton(Tick); 

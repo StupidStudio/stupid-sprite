@@ -1,4 +1,4 @@
-var tick = require('./tick24').getInstance({fps:24});
+var tick = require('../tick24').getInstance({fps:24});
 var Sprite = require('../../sprite');
 
 document.addEventListener("DOMContentLoaded", function(event) {

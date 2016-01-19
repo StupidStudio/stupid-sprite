@@ -1,56 +1,117 @@
 var test = require('tape');
-var Imagesloader = require('../imagesloader');
+var tick = require('./tick24').getInstance({fps:24});
+var Sprite = require('../sprite');
 
-var img1 = "http://www.google.com/logos/doodles/2015/teachers-day-2015-turkey-4703287659986944.2-hp2x.gif";
-var img2 = "http://www.google.com/logos/doodles/2015/argentina-elections-2015-second-round-5641816198086656-hp2x.png";
-var img3 = "http://www.google.com/logos/doodles/2015/fathers-day-2015-se-is-no-fi-ee-4876427472142336-hp2x.gif";
-var img4 = "http://www.google.com/logos/doodles/2015/childrens-day-2015-south-africa-4835971950444544.2-hp2x.jpg";
-var img5 = "http://www.google.com/logos/doodles/2015/german-reunification-day-2015-5400661768273920-hp2x.jpg";
+test('Loading images', function(t){
+	t.plan(1);
+	t.timeoutAfter(2000);
 
+	var canvas = document.createElement('canvas');
+	var images = [
+		'http://moves.stupid-studio.com/static/images/sprite/bjarne_01.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_02.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_03.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_04.png',
+	];
 
-test('All images loaded and notified', function(t){
-	t.plan(6);
-	var imagesloader = Imagesloader();
+	var sprite = Sprite({
+		tick:tick, 
+		canvas: canvas
+	});
 
-	imagesloader
-	.load([img1,img2,img3,img4,img5])
-	.success(function(images){
+	sprite
+	.load(images)
+	.success(function(){
 		t.pass('success');
-	})
-	.error(function(msg){
-		t.fail();
-	})
-	.notify(function(msg){
-		t.pass('notifed');
+	}).error(function(){
+		t.fail('error');
 	});
 });
 
-test('Should notify and throw error (because image doesn\'t exist)', function(t){
-	t.plan(5);
-	var imagesloader = Imagesloader();
+test('Is playing', function(t){
+	t.plan(2);
+	t.timeoutAfter(2000);
 
-	imagesloader
-	.load([img1,img2,img3,img4,'fakeimage.jpg'])
-	.success(function(images){
-		t.fail();
-	})
-	.error(function(msg){
-		t.pass('error');
-	})
-	.notify(function(msg){
-		t.pass('notifed');
+	var canvas = document.createElement('canvas');
+	var images = [
+		'http://moves.stupid-studio.com/static/images/sprite/bjarne_01.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_02.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_03.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_04.png',
+	];
+
+	var sprite = Sprite({
+		tick:tick, 
+		canvas: canvas
+	});
+
+	t.false(sprite.isPlaying());
+
+	sprite
+	.load(images)
+	.success(function(){
+		sprite.play();
+		t.true(sprite.isPlaying());
 	});
 });
 
-test('Images should be in same order after load', function(t){
-	t.plan(5);
-	var imagesloader = Imagesloader();
-	var arr = [img1,img2,img3,img4,img5];
-	imagesloader
-	.load(arr)
-	.success(function(images){
-		for (var i = 0; i < images.length; i++) {
-			t.equal(images[i].src, arr[i]);
-		};
-	})
+test('Is looping', function(t){
+	t.plan(2);
+	var count = 0;
+	var canvas = document.createElement('canvas');
+	var images = [
+		'http://moves.stupid-studio.com/static/images/sprite/bjarne_01.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_02.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_03.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_04.png',
+	];
+
+	var sprite = Sprite({
+		tick:tick, 
+		canvas: canvas
+	});
+
+	sprite
+	.load(images)
+	.success(function(){
+		sprite.play();
+	});
+
+	sprite.on('ended', function(){
+		t.pass();
+		count++;
+		if(count === 2) sprite.pause();	
+	});
+});
+
+test('Not looping', function(t){
+	t.plan(1);
+	var count = 0;
+	var canvas = document.createElement('canvas');
+	var images = [
+		'http://moves.stupid-studio.com/static/images/sprite/bjarne_01.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_02.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_03.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_04.png',
+	];
+
+	var sprite = Sprite({
+		tick:tick, 
+		canvas: canvas,
+		loop:false
+	});
+
+	sprite
+	.load(images)
+	.success(function(){
+		sprite.play();
+	});
+
+	sprite.on('ended', function(){
+		count++;
+	});
+
+	setTimeout(function(){
+		t.equal(count, 1);
+	}, 2000)
 });
