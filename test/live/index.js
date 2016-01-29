@@ -23,6 +23,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 	sprite.on('ended', function(){
 		console.log("Sprite -> End");
+		sprite.reverse();
+	});
+
+	sprite.on('update', function(_frame, _reversed){
+		console.log(_frame, _reversed);
 	});
 
 	window.sprite = sprite;

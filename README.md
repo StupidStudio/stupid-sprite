@@ -55,6 +55,11 @@ var sprite = Sprite({
 sprite.on('ended', function(){
 	// Sprite has looped/ended
 });
+
+sprite.on('update', function(_frame, _reversed){
+	// On every frame update.
+});
+	
 ```
 
 ## Methods

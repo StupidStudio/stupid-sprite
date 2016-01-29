@@ -64,6 +64,17 @@ function Sprite(opts){
 	var frameOffset = 0;
 
 	/**
+	 * @define {number} Frame
+	 */
+	var frame = 0;
+
+	/**
+	 * @define {number} Max Frames
+	 */
+
+	 var maxFrames = 0;
+
+	/**
 	 * @define {image} Current image
 	 */
 	var current;
@@ -121,12 +132,27 @@ function Sprite(opts){
 			canvas.height = frameHeight;
 
 			/**
+			 * Calculate Max Frames
+			 */
+			calculateMaxFrames(images);
+
+			/**
 			 * Resolve deferred when images is loaded
 			 */
 			def.resolve();
 		});
 
 		return def.promise;
+	}
+
+	/**
+	 * Calculate Max Frames 
+	 * by loopen images and frame dimensions by the images height
+	 */
+	function calculateMaxFrames(){
+		for (var i = 0; i < images.length; i++) {
+			maxFrames += images[i].height / frameHeight;
+		};
 	}
 
 	/**
@@ -186,6 +212,7 @@ function Sprite(opts){
 	function update(){
 		clear();
 		draw();
+		event.trigger('update', frame, isReverseBOOL);
 	}
 
 	/**
@@ -228,6 +255,12 @@ function Sprite(opts){
 		 * Iterate frameOffset with frameHeight
 		 */
 		frameOffset += frameHeight;
+		
+		/**
+		 * Iterate on frame
+		 */
+		if(frame <= 0) frame = maxFrames;
+		frame--;
 
 		/**
 		 * If current is first and frameOffset 0
@@ -248,6 +281,12 @@ function Sprite(opts){
 		frameOffset %= current.height;
 
 		/**
+		 * Iterate on frame
+		 */
+		frame++;
+		frame %= maxFrames;
+
+		/**
 		 * If frameOffset equals 0
 		 * set current to next
 		 * and if first in array the trigger ended
@@ -257,6 +296,7 @@ function Sprite(opts){
 			current = iterator.next(current);
 			if(iterator.isFirst()){
 				if(!loopBOOL) pause();
+				frame = 0;
 				event.trigger('ended');
 			} 
 		}
@@ -269,8 +309,9 @@ function Sprite(opts){
 	 */
 	function playFrom(_frame){
 		/**
-		 * Calc frameNumber 
+		 * Calc frame 
 		 */
+		frame = _frame;
 		var frameNumber = _frame * frameHeight;
 		var offset = 0;
 
