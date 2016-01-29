@@ -1,86 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
- * Call controller
- */
-var callctrl = {
-	/**
-	 * Once (call a function once)
-	 * @example once.trigger(); once.reset();
-	 * @param {function} callback The callback
-	 * @config {boolean} bool Boolean to control actions
-	 * @return {object} Returns a object to trigger callback
-	 */
-	once: function once(callback){
-		var bool = false;
-		return{
-			trigger:function(){
-				if(bool) return;
-				bool = true;
-				callback();
-			},
-			reset:function(){
-				bool = false;
-			}	
-		}
-	},
-
-	/**
-	 * Shift (callbackA can only be called once, until callbackB has been called)
-	 * @example shift.alpha(); shift.beta();
-	 * @param {function} callbackA The callback
-	 * @param {function} callbackB The callback
-	 * @config {boolean} bool Boolean to control actions
-	 * @return {object} Returns a object to trigger callbacks
-	 */
-	shift: function shift(callbackA, callbackB){
-		var bool = false;
-		var callbackA = callbackA || function(){};
-		var callbackB = callbackB || function(){};
-		return {
-			alpha:function() {
-				if(bool) return;
-				bool = true;
-				callbackA();
-			},
-			beta:function() {
-				if(!bool) return;
-				bool = false;
-				callbackB();
-			}
-		}
-	},
-
-	/**
-	 * Toggle (toggle between callbackA and callbackB)
-	 * @example toggle.trigger(); toggle.reset();
-	 * @param {function} callbackA The callback
-	 * @param {function} callbackB The callback
-	 * @config {boolean} bool Boolean to control actions
-	 * @return {object} Returns a object to trigger callbacks
-	 */
-	toggle: function toggle(callbackA, callbackB){
-		var bool = true;
-		return {
-			trigger: function() {
-				if(bool){
-		 			callbackA();
-		 		}else{
-		 			callbackB();
-		 		}
-	 			bool = !bool;
-			},
-			reset:function(){
-				bool = true;	
-			}
-		}
-	}
-}
-
-/** @export */
-module.exports = callctrl;
-
-},{}],2:[function(require,module,exports){
-/**
  * @fileoverview Simple deferred lib.
  * @author david@stupid-studio.com (David Adalberth Andersen)
  */
@@ -248,7 +167,7 @@ function Deferred(opts){
 
 /** @export */
 module.exports = Deferred;
-},{"stupid-event":3}],3:[function(require,module,exports){
+},{"stupid-event":2}],2:[function(require,module,exports){
 /**
  * @fileoverview Simple event system.
  * @author david@stupid-studio.com (David Adalberth Andersen)
@@ -369,9 +288,9 @@ function Event(opts){
 
 /** @export */
 module.exports = Event;
-},{}],4:[function(require,module,exports){
-arguments[4][3][0].apply(exports,arguments)
-},{"dup":3}],5:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
+arguments[4][2][0].apply(exports,arguments)
+},{"dup":2}],4:[function(require,module,exports){
 var Deferred = require('stupid-deferred')
 var Imageloader = require('stupid-imageloader');
 
@@ -523,11 +442,11 @@ function Imagesloader(opts){
 
 /** @export */
 module.exports = Imagesloader;
-},{"stupid-deferred":6,"stupid-imageloader":8}],6:[function(require,module,exports){
+},{"stupid-deferred":5,"stupid-imageloader":7}],5:[function(require,module,exports){
+arguments[4][1][0].apply(exports,arguments)
+},{"dup":1,"stupid-event":6}],6:[function(require,module,exports){
 arguments[4][2][0].apply(exports,arguments)
-},{"dup":2,"stupid-event":7}],7:[function(require,module,exports){
-arguments[4][3][0].apply(exports,arguments)
-},{"dup":3}],8:[function(require,module,exports){
+},{"dup":2}],7:[function(require,module,exports){
 var Deferred = require('stupid-deferred');
 
 /**
@@ -604,7 +523,7 @@ function Imageloader(opts){
 
 /** @export */
 module.exports = Imageloader; 
-},{"stupid-deferred":6}],9:[function(require,module,exports){
+},{"stupid-deferred":5}],8:[function(require,module,exports){
 /**
  * Iterator iterates over a collection
  * @example var current = iterator.next(current, collection);
@@ -824,55 +743,88 @@ var iterator = {
 
 /** @export */
 module.exports = iterator;
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /**
- * @fileoverview JS Singleton constructor
- * @author david@stupid-studio.com (David Adalberth Andersen)
+ * Call controller
  */
+var callctrl = {
+	/**
+	 * Once (call a function once)
+	 * @example once.trigger(); once.reset();
+	 * @param {function} callback The callback
+	 * @config {boolean} bool Boolean to control actions
+	 * @return {object} Returns a object to trigger callback
+	 */
+	once: function once(callback){
+		var bool = false;
+		return{
+			trigger:function(){
+				if(bool) return;
+				bool = true;
+				callback();
+			},
+			reset:function(){
+				bool = false;
+			}	
+		}
+	},
 
- /**
- * Singleton
- * @constructor
- * @param {function} moduleConstructor Passes the moduleConstructor
- */
-function Singleton(moduleConstructor){
-    /**
-     * Returns a self-execution function that returns an object
-     * @example var Module = Singleton(ModuleConstructor); var mod = Module.getInstance();
-     * @config {object} instance An object that holds the module
-     * @return {objcet} An object that returns the module via .getInstance()
-     */
-    return (function () {
-        var instance;
-        
-        /**
-         * Create the new module
-         */
-        function createInstance(opts) {
-            var object = moduleConstructor(opts);
-            return object;
-        }
-        
-        /**
-         * Return an objcet with .getInstance() that returns the module
-         * @param {oject} opts Passes the option for the module
-         * @config {object} instance If the instance is empty create new module, else return instance
-         * @return {object} returns the module (instance)
-         */
-        return {
-            getInstance: function (opts) {
-                if (!instance) instance = createInstance(opts);
-                return instance;
-            }
-        };
-    })();
+	/**
+	 * Shift (callbackA can only be called once, until callbackB has been called)
+	 * @example shift.alpha(); shift.beta();
+	 * @param {function} callbackA The callback
+	 * @param {function} callbackB The callback
+	 * @config {boolean} bool Boolean to control actions
+	 * @return {object} Returns a object to trigger callbacks
+	 */
+	shift: function shift(callbackA, callbackB){
+		var bool = false;
+		var callbackA = callbackA || function(){};
+		var callbackB = callbackB || function(){};
+		return {
+			alpha:function() {
+				if(bool) return;
+				bool = true;
+				callbackA();
+			},
+			beta:function() {
+				if(!bool) return;
+				bool = false;
+				callbackB();
+			}
+		}
+	},
+
+	/**
+	 * Toggle (toggle between callbackA and callbackB)
+	 * @example toggle.trigger(); toggle.reset();
+	 * @param {function} callbackA The callback
+	 * @param {function} callbackB The callback
+	 * @config {boolean} bool Boolean to control actions
+	 * @return {object} Returns a object to trigger callbacks
+	 */
+	toggle: function toggle(callbackA, callbackB){
+		var bool = true;
+		return {
+			trigger: function() {
+				if(bool){
+		 			callbackA();
+		 		}else{
+		 			callbackB();
+		 		}
+	 			bool = !bool;
+			},
+			reset:function(){
+				bool = true;	
+			}
+		}
+	}
 }
 
 /** @export */
-module.exports = Singleton;
-},{}],11:[function(require,module,exports){
-arguments[4][1][0].apply(exports,arguments)
-},{"dup":1}],12:[function(require,module,exports){
+module.exports = callctrl;
+
+},{}],10:[function(require,module,exports){
 /**
  * @fileoverview Tick RAF controller
  * @author david@stupid-studio.com (David Adalberth Andersen)
@@ -1040,7 +992,7 @@ function Tick(opts) {
 
 /** @export */
 module.exports = Tick;
-},{"stupid-callctrl":11}],13:[function(require,module,exports){
+},{"stupid-callctrl":9}],11:[function(require,module,exports){
 var Iterator = require('stupid-iterator');
 var Imagesloader = require('stupid-imagesloader');
 var Deferred = require('stupid-deferred'); 
@@ -1180,6 +1132,11 @@ function Sprite(opts){
 			calculateMaxFrame(images);
 
 			/**
+			 * Draw image
+			 */
+			ctx.drawImage(current, 0, frameOffset);
+			
+			/**
 			 * Resolve deferred when images is loaded
 			 */
 			def.resolve();
@@ -1270,11 +1227,6 @@ function Sprite(opts){
 	 */
 	function draw(){
 		/**
-		 * Draw image with frameOffset
-		 */
-		ctx.drawImage(current, 0, frameOffset);
-
-		/**
 		 * Move image foward or backwards
 		 */
 		if(!isReverseBOOL){
@@ -1282,6 +1234,12 @@ function Sprite(opts){
 		}else{
 			backward();
 		}
+
+		/**
+		 * Draw image with frameOffset
+		 */
+		ctx.drawImage(current, 0, frameOffset);
+
 	}
 
 	function backward(){
@@ -1464,67 +1422,30 @@ function Sprite(opts){
 }
 
 module.exports = Sprite;
-},{"stupid-deferred":2,"stupid-event":4,"stupid-imagesloader":5,"stupid-iterator":9}],14:[function(require,module,exports){
-var tick = require('../tick24').getInstance({fps:24});
+},{"stupid-deferred":1,"stupid-event":3,"stupid-imagesloader":4,"stupid-iterator":8}],12:[function(require,module,exports){
+var Tick = require('stupid-tick');
 var Sprite = require('../../sprite');
-var Callctrl = require('stupid-callctrl');
 
 document.addEventListener("DOMContentLoaded", function(event) {
-	hamburgerSprite();
-	bjarneSprite();
-});
+	var fps = 3;
+	var tick = Tick({fps:fps});
+	var canvasHTML = document.createElement('canvas');
+	document.body.appendChild(canvasHTML);
 
-function hamburgerSprite(){
-	var menu = document.querySelector('.menu');
-	var canvas = document.querySelector('.menu-canvas');
 	var images = [
-		'images/hamburger_01_1_minified.png'
-	];
-	var sprite = Sprite({
-		tick:tick, 
-		canvas: canvas,
-		loop:false
-	});
-	
-
-	var toggle = Callctrl.toggle(function(){
-		sprite.reverse(false);
-		sprite.play();
-	}, function(){
-		sprite.reverse(true);
-		if(sprite.getFrame() === 0) sprite.playFrom(sprite.getEndFrame());
-	});
-
-	sprite
-	.load(images)
-	.success(function(){
-		sprite.stop();
-	});
-
-	menu.addEventListener('click', function handler(e){
-		e.preventDefault();
-		toggle.trigger();
-	}); 
-	
-	sprite.on('update', function(_frame, _reversed){
-		// console.log(_frame, _reversed);
-	});	
-}
-
-function bjarneSprite(){
-	var canvas = document.querySelector('.bjarne-canvas');
-	var images = [
-		'images/bjarne_01.png',
-		'images/bjarne_02.png',
-		'images/bjarne_03.png',
-		'images/bjarne_04.png',
+		'images/test_500_01.png',
+		// 'images/test_500_02.png',
+		// 'images/test_500_03.png',
+		// 'images/test_500_04.png',
+		// 'images/test_500_05.png',
 	];
 
 	var sprite = Sprite({
-		tick:tick, 
-		canvas: canvas
+		tick: tick, 
+		canvas: canvasHTML,
+		// loop:false
 	});
-	
+
 	sprite
 	.load(images)
 	.success(function(){
@@ -1532,17 +1453,15 @@ function bjarneSprite(){
 	});
 
 	sprite.on('ended', function(){
-		console.log("Sprite -> End");
 		sprite.reverse();
+		console.log('---> END');
 	});
 
-	sprite.on('update', function(_frame, _reversed){
-		console.log(_frame, _reversed, sprite.getEndFrame());
+	sprite.on('update', function(_frame){
+		// console.log(_frame);
 	});
-	window.bjarneSprite = sprite;
-}
-},{"../../sprite":13,"../tick24":15,"stupid-callctrl":1}],15:[function(require,module,exports){
-var Singleton = require('stupid-singleton');
-var Tick = require('stupid-tick');
-module.exports = Singleton(Tick); 
-},{"stupid-singleton":10,"stupid-tick":12}]},{},[14]);
+
+	window.sprite = sprite;
+
+});
+},{"../../sprite":11,"stupid-tick":10}]},{},[12]);

@@ -137,6 +137,11 @@ function Sprite(opts){
 			calculateMaxFrame(images);
 
 			/**
+			 * Draw image
+			 */
+			ctx.drawImage(current, 0, frameOffset);
+			
+			/**
 			 * Resolve deferred when images is loaded
 			 */
 			def.resolve();
@@ -227,11 +232,6 @@ function Sprite(opts){
 	 */
 	function draw(){
 		/**
-		 * Draw image with frameOffset
-		 */
-		ctx.drawImage(current, 0, frameOffset);
-
-		/**
 		 * Move image foward or backwards
 		 */
 		if(!isReverseBOOL){
@@ -239,6 +239,12 @@ function Sprite(opts){
 		}else{
 			backward();
 		}
+
+		/**
+		 * Draw image with frameOffset
+		 */
+		ctx.drawImage(current, 0, frameOffset);
+
 	}
 
 	function backward(){
