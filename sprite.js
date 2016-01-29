@@ -195,7 +195,7 @@ function Sprite(opts){
 		 * Reset to sprite to reset
 		 * Set current to first image
 		 */
-		frame = 0;
+		frame = -1;
 	}
 
 	/**

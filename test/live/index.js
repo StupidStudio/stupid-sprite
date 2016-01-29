@@ -1,6 +1,6 @@
 var Tick = require('stupid-tick');
 var Sprite = require('../../sprite');
-var fps = 25;
+var fps = 6;
 var tick = Tick({fps:fps}); 
 
 document.addEventListener("DOMContentLoaded", function(event) {
@@ -25,7 +25,6 @@ function sprite1(){
 	var sprite = Sprite({
 		tick: tick, 
 		canvas: canvasHTML,
-		// loop:false
 	});
 
 	sprite
@@ -36,8 +35,6 @@ function sprite1(){
 
 	sprite.on('ended', function(){
 		sprite.reverse();
-		// sprite.pause();
-		console.log('- - - - - E N D E D - - - - - ');
 	});
 
 	sprite.on('update', function(_frame){

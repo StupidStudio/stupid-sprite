@@ -1190,7 +1190,7 @@ function Sprite(opts){
 		 * Reset to sprite to reset
 		 * Set current to first image
 		 */
-		frame = 0;
+		frame = -1;
 	}
 
 	/**
@@ -1352,7 +1352,7 @@ module.exports = Sprite;
 },{"stupid-deferred":1,"stupid-event":3,"stupid-imagesloader":4,"stupid-iterator":8}],12:[function(require,module,exports){
 var Tick = require('stupid-tick');
 var Sprite = require('../../sprite');
-var fps = 25;
+var fps = 6;
 var tick = Tick({fps:fps}); 
 
 document.addEventListener("DOMContentLoaded", function(event) {
@@ -1377,7 +1377,6 @@ function sprite1(){
 	var sprite = Sprite({
 		tick: tick, 
 		canvas: canvasHTML,
-		// loop:false
 	});
 
 	sprite
@@ -1388,8 +1387,6 @@ function sprite1(){
 
 	sprite.on('ended', function(){
 		sprite.reverse();
-		// sprite.pause();
-		console.log('- - - - - E N D E D - - - - - ');
 	});
 
 	sprite.on('update', function(_frame){
