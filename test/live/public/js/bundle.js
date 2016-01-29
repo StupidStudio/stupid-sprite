@@ -1041,7 +1041,7 @@ function Sprite(opts){
 	/**
 	 * @define {boolean} Should sprite loop
 	 */
-	var loopBOOL = opts.loop === undefined ? true : opts.loop;
+	var isLoopingBOOL = opts.loop === undefined ? true : opts.loop;
 
 	/**
 	 * @define {array} Image array
@@ -1142,12 +1142,15 @@ function Sprite(opts){
 	function createTimeline(){
 		for (var i = 0; i < images.length; i++) {
 			var img = images[i];
+			/** Find image frames */
 			var imageFrames = img.height / frameHeight;
+			/** Loop thorugh image frames */
 			for (var u = 0; u < imageFrames; u++) {
 				timeline.push({
 					image: img,
-					offset: ((frameHeight * endFrame) % img.height) * -1
+					offset: ((frameHeight * endFrame) % img.height) * -1 // Calculate images offset
 				});
+				/** Update endFrame count */
 				endFrame++;
 			};
 		};
@@ -1157,13 +1160,17 @@ function Sprite(opts){
 	 * Play sprite
 	 * @example sprite.play()
 	 */
-	function play(){
-		/**
-		 * Add to tick object
-		 * set isPlaying to true
-		 */
+	function play(_frame){
+		/** Set frame if set */
+		if(_frame) frame = _frame - 1;
+
+		/** set isPlaying to true */
 		isPlayingBOOL = true;
+
+		/** Add to tick object */
 		tick.add(update);
+
+		/** Trigger event */
 		event.trigger('started');
 	}
 
@@ -1171,36 +1178,32 @@ function Sprite(opts){
 	 * Pause sprite
 	 * @example sprite.pause()
 	 */
-	function pause(){
-		/**
-		 * Remove object from tick
-		 * set isPlaying to false
-		 */
-		isPlayingBOOL = false;
-		tick.remove(update);
-		event.trigger('paused');
-	}
+	function pause(_frame){
+		/** Set frame if set */
+		if(_frame) frame = _frame;
 
-	/**
-	 * Reset sprite
-	 * @example sprite.reset()
-	 */
-	function reset(){
-		/**
-		 * Reset to sprite to reset
-		 * Set current to first image
-		 */
-		frame = -1;
+		/** set isPlaying to false */
+		isPlayingBOOL = false;
+
+		/** Remove object from tick */
+		tick.remove(update);
+
+		/** Draw */
+		clear();
+		draw();
+
+		/** Trigger event */
+		event.trigger('paused');
 	}
 
 	/**
 	 * Stop sprite
 	 * @example sprite.stop()
 	 */
-	function stop(){
-		pause();
-		reset()
-		update();
+	function stop(_frame){
+		/** Pause */
+		frame = _frame ? _frame : 0;
+		pause(_frame);
 	}
 
 	/**
@@ -1216,7 +1219,7 @@ function Sprite(opts){
 		clear();
 		draw();
 
-		event.trigger('update', frame, isReverseBOOL);
+		event.trigger('update', frame);
 	}
 
 	/**
@@ -1241,7 +1244,7 @@ function Sprite(opts){
 		frame = frame <= 0 ? endFrame : frame;
 		frame--;
 		if(frame === 0){
-			if(!loopBOOL) pause();
+			if(!isLoopingBOOL) pause();
 			event.trigger('ended');
 		}
 	}
@@ -1250,28 +1253,9 @@ function Sprite(opts){
 		frame++;
 		frame = frame >= endFrame ? 0 : frame;	
 		if(frame === endFrame - 1){
-			if(!loopBOOL) pause();
+			if(!isLoopingBOOL) pause();
 			event.trigger('ended');
 		}
-	}
-
-	/**
-	 * playFrom
-	 * @example sprite.playFrom(24)
-	 * @param {number} _frame Frame number to stat from
-	 */
-	function playFrom(_frame){
-		/**
-		 * Calc frame 
-		 */
-		frame = _frame - 1;
-
-		/**
-		 * Start tick
-		 * And set boolean
-		 */
-		tick.add(update);
-		isPlayingBOOL = true;
 	}
 
 	/**
@@ -1302,6 +1286,24 @@ function Sprite(opts){
 	}
 
 	/**
+	 * Get reverse bool
+	 * @example sprite.getReverse()
+	 * @return {boolean} isReverseBOOL
+	 */
+	function getReverse(){
+		return isReverseBOOL;
+	}
+
+	/**
+	 * Get loop bool
+	 * @example sprite.getLoop()
+	 * @return {boolean} isLoopingBOOL
+	 */
+	function getLoop(){
+		return isLoopingBOOL;
+	}
+
+	/**
 	 * Reverse
 	 * @example sprite.reverse()
 	 */
@@ -1319,9 +1321,9 @@ function Sprite(opts){
 	 */
 	function loop(_bool){
 		if(_bool != undefined){
-			loopBOOL = _bool;
+			isLoopingBOOL = _bool;
 		}else{
-			loopBOOL = !loopBOOL;
+			isLoopingBOOL = !isLoopingBOOL;
 		}
 	}
 
@@ -1331,13 +1333,14 @@ function Sprite(opts){
 
 	self.load = load;
 	self.play = play;	
-	self.playFrom = playFrom;
 	self.pause = pause;
 	self.stop = stop;	
-	self.reset = reset;	
 
 	self.reverse = reverse;
+	self.getReverse = getReverse;
+
 	self.loop = loop;
+	self.getLoop = getLoop;
 
 	self.isPlaying = isPlaying;
 	self.getFrame = getFrame;
@@ -1390,7 +1393,7 @@ function sprite1(){
 	});
 
 	sprite.on('update', function(_frame){
-		console.log('Update', _frame, sprite.getEndFrame());
+		console.log('Update', _frame, sprite.getEndFrame(), sprite.getReverse(), sprite.getLoop());
 	});
 
 	window.sprite = sprite;

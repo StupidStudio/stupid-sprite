@@ -55,7 +55,7 @@ sprite.on('ended', function(){
 	// Sprite has looped/ended
 });
 
-sprite.on('update', function(_frame, _reversed){
+sprite.on('update', function(_frame){
 	// On every frame update.
 });
 ```
@@ -63,19 +63,18 @@ sprite.on('update', function(_frame, _reversed){
 ## Methods
 
 ```javascript
-sprite.play();
-sprite.pause();
-sprite.stop();
+sprite.play(Number); // Number is optional
+sprite.pause(Number); // Number is optional
+sprite.stop(Number); // Number is optional
 
-sprite.loop() // Toogle loop
-sprite.reverse() // Reverses direction
+sprite.isPlaying() // Tells if sprite is playing [Boolean]
 
-sprite.isPlaying() // Tells if sprite is playing [boolean]
+sprite.loop(Boolean); // Toogle loop. Boolean is optional.
+sprite.getLoop(); // Get loop Boolean.
 
-// Plays from specific frame (image)
-sprite.playFrom(_frame);
+sprite.reverse(Boolean) // Reverses direction. Boolean is optional.
+sprite.getReverse(); // Get reverse Boolean
 
-sprite.getFrame(); // Returns current frame
-
-sprite.getEndFrame(); // Returns end/last frame
+sprite.getFrame(); // Returns current frame [Number]
+sprite.getEndFrame(); // Returns end/last frame [Number]
 ```

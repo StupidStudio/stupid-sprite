@@ -38,7 +38,7 @@ function sprite1(){
 	});
 
 	sprite.on('update', function(_frame){
-		console.log('Update', _frame, sprite.getEndFrame());
+		console.log('Update', _frame, sprite.getEndFrame(), sprite.getReverse(), sprite.getLoop());
 	});
 
 	window.sprite = sprite;
