@@ -34,11 +34,11 @@ function sprite1(){
 	});
 
 	sprite.on('ended', function(){
-		sprite.reverse();
+		console.log('Ended');
 	});
 
 	sprite.on('update', function(_frame){
-		console.log(_frame, sprite.getEndFrame());
+		console.log('Update', _frame, sprite.getEndFrame());
 	});
 
 	window.sprite = sprite;
