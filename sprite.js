@@ -1,4 +1,3 @@
-var Iterator = require('stupid-iterator');
 var Imagesloader = require('stupid-imagesloader');
 var Deferred = require('stupid-deferred'); 
 var Event = require('stupid-event');
@@ -67,11 +66,6 @@ function Sprite(opts){
 	 * @define {number} Max Frames
 	 */
 	var endFrame = 0;
-
-	/**
-	 * @define {Iterator} Iterator object
-	 */
-	var iterator;
 
 	/**
 	 * @define {boolean} IsPlaying Boolean

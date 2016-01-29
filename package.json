@@ -34,7 +34,6 @@
   "dependencies": {
     "stupid-deferred": "^1.0.3",
     "stupid-event": "^1.1.0",
-    "stupid-imagesloader": "^1.0.0",
-    "stupid-iterator": "^1.1.0"
+    "stupid-imagesloader": "^1.0.0"
   }
 }
