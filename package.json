@@ -11,6 +11,7 @@
     "faucet": "^0.0.1",
     "gulp": "^3.9.0",
     "gulp-livereload": "^3.8.1",
+    "stupid-callctrl": "^1.0.1",
     "stupid-singleton": "^1.0.0",
     "stupid-tick": "^1.1.0",
     "tap-dot": "^1.0.0",

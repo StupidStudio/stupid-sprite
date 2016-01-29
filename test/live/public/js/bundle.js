@@ -1,5 +1,86 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
+ * Call controller
+ */
+var callctrl = {
+	/**
+	 * Once (call a function once)
+	 * @example once.trigger(); once.reset();
+	 * @param {function} callback The callback
+	 * @config {boolean} bool Boolean to control actions
+	 * @return {object} Returns a object to trigger callback
+	 */
+	once: function once(callback){
+		var bool = false;
+		return{
+			trigger:function(){
+				if(bool) return;
+				bool = true;
+				callback();
+			},
+			reset:function(){
+				bool = false;
+			}	
+		}
+	},
+
+	/**
+	 * Shift (callbackA can only be called once, until callbackB has been called)
+	 * @example shift.alpha(); shift.beta();
+	 * @param {function} callbackA The callback
+	 * @param {function} callbackB The callback
+	 * @config {boolean} bool Boolean to control actions
+	 * @return {object} Returns a object to trigger callbacks
+	 */
+	shift: function shift(callbackA, callbackB){
+		var bool = false;
+		var callbackA = callbackA || function(){};
+		var callbackB = callbackB || function(){};
+		return {
+			alpha:function() {
+				if(bool) return;
+				bool = true;
+				callbackA();
+			},
+			beta:function() {
+				if(!bool) return;
+				bool = false;
+				callbackB();
+			}
+		}
+	},
+
+	/**
+	 * Toggle (toggle between callbackA and callbackB)
+	 * @example toggle.trigger(); toggle.reset();
+	 * @param {function} callbackA The callback
+	 * @param {function} callbackB The callback
+	 * @config {boolean} bool Boolean to control actions
+	 * @return {object} Returns a object to trigger callbacks
+	 */
+	toggle: function toggle(callbackA, callbackB){
+		var bool = true;
+		return {
+			trigger: function() {
+				if(bool){
+		 			callbackA();
+		 		}else{
+		 			callbackB();
+		 		}
+	 			bool = !bool;
+			},
+			reset:function(){
+				bool = true;	
+			}
+		}
+	}
+}
+
+/** @export */
+module.exports = callctrl;
+
+},{}],2:[function(require,module,exports){
+/**
  * @fileoverview Simple deferred lib.
  * @author david@stupid-studio.com (David Adalberth Andersen)
  */
@@ -167,7 +248,7 @@ function Deferred(opts){
 
 /** @export */
 module.exports = Deferred;
-},{"stupid-event":2}],2:[function(require,module,exports){
+},{"stupid-event":3}],3:[function(require,module,exports){
 /**
  * @fileoverview Simple event system.
  * @author david@stupid-studio.com (David Adalberth Andersen)
@@ -288,9 +369,9 @@ function Event(opts){
 
 /** @export */
 module.exports = Event;
-},{}],3:[function(require,module,exports){
-arguments[4][2][0].apply(exports,arguments)
-},{"dup":2}],4:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
+arguments[4][3][0].apply(exports,arguments)
+},{"dup":3}],5:[function(require,module,exports){
 var Deferred = require('stupid-deferred')
 var Imageloader = require('stupid-imageloader');
 
@@ -442,11 +523,11 @@ function Imagesloader(opts){
 
 /** @export */
 module.exports = Imagesloader;
-},{"stupid-deferred":5,"stupid-imageloader":7}],5:[function(require,module,exports){
-arguments[4][1][0].apply(exports,arguments)
-},{"dup":1,"stupid-event":6}],6:[function(require,module,exports){
+},{"stupid-deferred":6,"stupid-imageloader":8}],6:[function(require,module,exports){
 arguments[4][2][0].apply(exports,arguments)
-},{"dup":2}],7:[function(require,module,exports){
+},{"dup":2,"stupid-event":7}],7:[function(require,module,exports){
+arguments[4][3][0].apply(exports,arguments)
+},{"dup":3}],8:[function(require,module,exports){
 var Deferred = require('stupid-deferred');
 
 /**
@@ -523,7 +604,7 @@ function Imageloader(opts){
 
 /** @export */
 module.exports = Imageloader; 
-},{"stupid-deferred":5}],8:[function(require,module,exports){
+},{"stupid-deferred":6}],9:[function(require,module,exports){
 /**
  * Iterator iterates over a collection
  * @example var current = iterator.next(current, collection);
@@ -743,7 +824,7 @@ var iterator = {
 
 /** @export */
 module.exports = iterator;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /**
  * @fileoverview JS Singleton constructor
  * @author david@stupid-studio.com (David Adalberth Andersen)
@@ -789,88 +870,9 @@ function Singleton(moduleConstructor){
 
 /** @export */
 module.exports = Singleton;
-},{}],10:[function(require,module,exports){
-/**
- * Call controller
- */
-var callctrl = {
-	/**
-	 * Once (call a function once)
-	 * @example once.trigger(); once.reset();
-	 * @param {function} callback The callback
-	 * @config {boolean} bool Boolean to control actions
-	 * @return {object} Returns a object to trigger callback
-	 */
-	once: function once(callback){
-		var bool = false;
-		return{
-			trigger:function(){
-				if(bool) return;
-				bool = true;
-				callback();
-			},
-			reset:function(){
-				bool = false;
-			}	
-		}
-	},
-
-	/**
-	 * Shift (callbackA can only be called once, until callbackB has been called)
-	 * @example shift.alpha(); shift.beta();
-	 * @param {function} callbackA The callback
-	 * @param {function} callbackB The callback
-	 * @config {boolean} bool Boolean to control actions
-	 * @return {object} Returns a object to trigger callbacks
-	 */
-	shift: function shift(callbackA, callbackB){
-		var bool = false;
-		var callbackA = callbackA || function(){};
-		var callbackB = callbackB || function(){};
-		return {
-			alpha:function() {
-				if(bool) return;
-				bool = true;
-				callbackA();
-			},
-			beta:function() {
-				if(!bool) return;
-				bool = false;
-				callbackB();
-			}
-		}
-	},
-
-	/**
-	 * Toggle (toggle between callbackA and callbackB)
-	 * @example toggle.trigger(); toggle.reset();
-	 * @param {function} callbackA The callback
-	 * @param {function} callbackB The callback
-	 * @config {boolean} bool Boolean to control actions
-	 * @return {object} Returns a object to trigger callbacks
-	 */
-	toggle: function toggle(callbackA, callbackB){
-		var bool = true;
-		return {
-			trigger: function() {
-				if(bool){
-		 			callbackA();
-		 		}else{
-		 			callbackB();
-		 		}
-	 			bool = !bool;
-			},
-			reset:function(){
-				bool = true;	
-			}
-		}
-	}
-}
-
-/** @export */
-module.exports = callctrl;
-
 },{}],11:[function(require,module,exports){
+arguments[4][1][0].apply(exports,arguments)
+},{"dup":1}],12:[function(require,module,exports){
 /**
  * @fileoverview Tick RAF controller
  * @author david@stupid-studio.com (David Adalberth Andersen)
@@ -1038,7 +1040,7 @@ function Tick(opts) {
 
 /** @export */
 module.exports = Tick;
-},{"stupid-callctrl":10}],12:[function(require,module,exports){
+},{"stupid-callctrl":11}],13:[function(require,module,exports){
 var Iterator = require('stupid-iterator');
 var Imagesloader = require('stupid-imagesloader');
 var Deferred = require('stupid-deferred'); 
@@ -1113,7 +1115,7 @@ function Sprite(opts){
 	 * @define {number} Max Frames
 	 */
 
-	 var maxFrames = 0;
+	 var maxFrame = 0;
 
 	/**
 	 * @define {image} Current image
@@ -1175,7 +1177,7 @@ function Sprite(opts){
 			/**
 			 * Calculate Max Frames
 			 */
-			calculateMaxFrames(images);
+			calculateMaxFrame(images);
 
 			/**
 			 * Resolve deferred when images is loaded
@@ -1190,9 +1192,9 @@ function Sprite(opts){
 	 * Calculate Max Frames 
 	 * by loopen images and frame dimensions by the images height
 	 */
-	function calculateMaxFrames(){
+	function calculateMaxFrame(){
 		for (var i = 0; i < images.length; i++) {
-			maxFrames += images[i].height / frameHeight;
+			maxFrame += images[i].height / frameHeight;
 		};
 	}
 
@@ -1300,7 +1302,7 @@ function Sprite(opts){
 		/**
 		 * Iterate on frame
 		 */
-		if(frame <= 0) frame = maxFrames;
+		if(frame <= 0) frame = maxFrame;
 		frame--;
 
 		/**
@@ -1325,7 +1327,7 @@ function Sprite(opts){
 		 * Iterate on frame
 		 */
 		frame++;
-		frame %= maxFrames;
+		frame %= maxFrame;
 
 		/**
 		 * If frameOffset equals 0
@@ -1333,6 +1335,7 @@ function Sprite(opts){
 		 * and if first in array the trigger ended
 		 * and trigger pause if loop false
 		 */
+
 		if(frameOffset === 0){
 			current = iterator.next(current);
 			if(iterator.isFirst()){
@@ -1356,12 +1359,15 @@ function Sprite(opts){
 		var frameNumber = _frame * frameHeight;
 		var offset = 0;
 
+
 		/**
 		 * Loop through images to find 
 		 * next current image to start from
 		 */
+
 		for (var i = 0; i < images.length; i++) {
 			offset += images[i].height;
+
 			/**
 			 * If frameNumber is less than the added images height
 			 * the set the current image, and set frameOffset and iterator
@@ -1370,7 +1376,7 @@ function Sprite(opts){
 			if(frameNumber < offset){
 				current = images[i];
 				iterator.set(current);
-				frameOffset = frameNumber % current.height;
+				frameOffset = (frameNumber % current.height) * -1;
 				break;
 			}
 		};
@@ -1390,6 +1396,24 @@ function Sprite(opts){
 	 */
 	function isPlaying(){
 		return isPlayingBOOL;
+	}
+
+	/**
+	 * Get frame
+	 * @example sprite.getFrame()
+	 * @return {number} frame
+	 */
+	function getFrame(){
+		return frame;
+	}
+
+	/**
+	 * Get end frame
+	 * @example sprite.getEndFrame()
+	 * @return {number} maxFrame
+	 */
+	function getEndFrame(){
+		return maxFrame - 1;
 	}
 
 	/**
@@ -1427,22 +1451,68 @@ function Sprite(opts){
 	self.stop = stop;	
 	self.reset = reset;	
 
-	self.on = event.on;
 	self.reverse = reverse;
 	self.loop = loop;
 
 	self.isPlaying = isPlaying;
+	self.getFrame = getFrame;
+	self.getEndFrame = getEndFrame;
+
+	self.on = event.on;
 
 	return self;
 }
 
 module.exports = Sprite;
-},{"stupid-deferred":1,"stupid-event":3,"stupid-imagesloader":4,"stupid-iterator":8}],13:[function(require,module,exports){
+},{"stupid-deferred":2,"stupid-event":4,"stupid-imagesloader":5,"stupid-iterator":9}],14:[function(require,module,exports){
 var tick = require('../tick24').getInstance({fps:24});
 var Sprite = require('../../sprite');
+var Callctrl = require('stupid-callctrl');
 
 document.addEventListener("DOMContentLoaded", function(event) {
-	var canvas = document.querySelector('canvas');
+	hamburgerSprite();
+	bjarneSprite();
+});
+
+function hamburgerSprite(){
+	var menu = document.querySelector('.menu');
+	var canvas = document.querySelector('.menu-canvas');
+	var images = [
+		'images/hamburger_01_1_minified.png'
+	];
+	var sprite = Sprite({
+		tick:tick, 
+		canvas: canvas,
+		loop:false
+	});
+	
+
+	var toggle = Callctrl.toggle(function(){
+		sprite.reverse(false);
+		sprite.play();
+	}, function(){
+		sprite.reverse(true);
+		if(sprite.getFrame() === 0) sprite.playFrom(sprite.getEndFrame());
+	});
+
+	sprite
+	.load(images)
+	.success(function(){
+		sprite.stop();
+	});
+
+	menu.addEventListener('click', function handler(e){
+		e.preventDefault();
+		toggle.trigger();
+	}); 
+	
+	sprite.on('update', function(_frame, _reversed){
+		// console.log(_frame, _reversed);
+	});	
+}
+
+function bjarneSprite(){
+	var canvas = document.querySelector('.bjarne-canvas');
 	var images = [
 		'images/bjarne_01.png',
 		'images/bjarne_02.png',
@@ -1467,15 +1537,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	});
 
 	sprite.on('update', function(_frame, _reversed){
-		console.log(_frame, _reversed);
+		console.log(_frame, _reversed, sprite.getEndFrame());
 	});
-
-	window.sprite = sprite;
-
-	
-});
-},{"../../sprite":12,"../tick24":14}],14:[function(require,module,exports){
+	window.bjarneSprite = sprite;
+}
+},{"../../sprite":13,"../tick24":15,"stupid-callctrl":1}],15:[function(require,module,exports){
 var Singleton = require('stupid-singleton');
 var Tick = require('stupid-tick');
 module.exports = Singleton(Tick); 
-},{"stupid-singleton":9,"stupid-tick":11}]},{},[13]);
+},{"stupid-singleton":10,"stupid-tick":12}]},{},[14]);

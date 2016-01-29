@@ -72,7 +72,7 @@ function Sprite(opts){
 	 * @define {number} Max Frames
 	 */
 
-	 var maxFrames = 0;
+	 var maxFrame = 0;
 
 	/**
 	 * @define {image} Current image
@@ -134,7 +134,7 @@ function Sprite(opts){
 			/**
 			 * Calculate Max Frames
 			 */
-			calculateMaxFrames(images);
+			calculateMaxFrame(images);
 
 			/**
 			 * Resolve deferred when images is loaded
@@ -149,9 +149,9 @@ function Sprite(opts){
 	 * Calculate Max Frames 
 	 * by loopen images and frame dimensions by the images height
 	 */
-	function calculateMaxFrames(){
+	function calculateMaxFrame(){
 		for (var i = 0; i < images.length; i++) {
-			maxFrames += images[i].height / frameHeight;
+			maxFrame += images[i].height / frameHeight;
 		};
 	}
 
@@ -259,7 +259,7 @@ function Sprite(opts){
 		/**
 		 * Iterate on frame
 		 */
-		if(frame <= 0) frame = maxFrames;
+		if(frame <= 0) frame = maxFrame;
 		frame--;
 
 		/**
@@ -284,7 +284,7 @@ function Sprite(opts){
 		 * Iterate on frame
 		 */
 		frame++;
-		frame %= maxFrames;
+		frame %= maxFrame;
 
 		/**
 		 * If frameOffset equals 0
@@ -292,6 +292,7 @@ function Sprite(opts){
 		 * and if first in array the trigger ended
 		 * and trigger pause if loop false
 		 */
+
 		if(frameOffset === 0){
 			current = iterator.next(current);
 			if(iterator.isFirst()){
@@ -315,12 +316,15 @@ function Sprite(opts){
 		var frameNumber = _frame * frameHeight;
 		var offset = 0;
 
+
 		/**
 		 * Loop through images to find 
 		 * next current image to start from
 		 */
+
 		for (var i = 0; i < images.length; i++) {
 			offset += images[i].height;
+
 			/**
 			 * If frameNumber is less than the added images height
 			 * the set the current image, and set frameOffset and iterator
@@ -329,7 +333,7 @@ function Sprite(opts){
 			if(frameNumber < offset){
 				current = images[i];
 				iterator.set(current);
-				frameOffset = frameNumber % current.height;
+				frameOffset = (frameNumber % current.height) * -1;
 				break;
 			}
 		};
@@ -349,6 +353,24 @@ function Sprite(opts){
 	 */
 	function isPlaying(){
 		return isPlayingBOOL;
+	}
+
+	/**
+	 * Get frame
+	 * @example sprite.getFrame()
+	 * @return {number} frame
+	 */
+	function getFrame(){
+		return frame;
+	}
+
+	/**
+	 * Get end frame
+	 * @example sprite.getEndFrame()
+	 * @return {number} maxFrame
+	 */
+	function getEndFrame(){
+		return maxFrame - 1;
 	}
 
 	/**
@@ -386,11 +408,14 @@ function Sprite(opts){
 	self.stop = stop;	
 	self.reset = reset;	
 
-	self.on = event.on;
 	self.reverse = reverse;
 	self.loop = loop;
 
 	self.isPlaying = isPlaying;
+	self.getFrame = getFrame;
+	self.getEndFrame = getEndFrame;
+
+	self.on = event.on;
 
 	return self;
 }

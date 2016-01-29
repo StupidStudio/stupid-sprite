@@ -36,7 +36,6 @@ sprite
 	// Play sprite when images is loaded
 	sprite.play();
 });
-	
 ```
 
 ## Options
@@ -59,7 +58,6 @@ sprite.on('ended', function(){
 sprite.on('update', function(_frame, _reversed){
 	// On every frame update.
 });
-	
 ```
 
 ## Methods
@@ -76,4 +74,8 @@ sprite.isPlaying() // Tells if sprite is playing [boolean]
 
 // Plays from specific frame (image)
 sprite.playFrom(_frame);
+
+sprite.getFrame(); // Returns current frame
+
+sprite.getEndFrame(); // Returns end/last frame
 ```
