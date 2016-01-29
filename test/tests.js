@@ -1,5 +1,6 @@
 var test = require('tape');
-var tick = require('./tick24').getInstance({fps:24});
+var Tick = require('stupid-tick');
+var tick = Tick(); 
 var Sprite = require('../sprite');
 
 test('Loading images', function(t){
