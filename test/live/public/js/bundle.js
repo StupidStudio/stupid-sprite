@@ -1054,11 +1054,6 @@ function Sprite(opts){
 	var frameHeight = opts.frameHeight;
 
 	/**
-	 * @define {number} Frame offset
-	 */
-	var frameOffset = 0;
-
-	/**
 	 * @define {number} Frame
 	 */
 	var frame = 0;
@@ -1066,13 +1061,7 @@ function Sprite(opts){
 	/**
 	 * @define {number} Max Frames
 	 */
-
-	 var maxFrame = 0;
-
-	/**
-	 * @define {image} Current image
-	 */
-	var current;
+	var endFrame = 0;
 
 	/**
 	 * @define {Iterator} Iterator object
@@ -1088,6 +1077,11 @@ function Sprite(opts){
 	 * @define {boolean} Reserve
 	 */
 	var isReverseBOOL = false;
+
+	/**
+	 * @define {object} timeline
+	 */
+	var timeline = [];	
 
 	/**
 	 * Load images
@@ -1108,34 +1102,28 @@ function Sprite(opts){
 			 * Set _imgs to images 
 			 */
 			images = _imgs;
-			
-			/**
-			 * Create Iterator object and set current to first image
-			 */
-			iterator = Iterator.create(images[0], images);
-			current = iterator.get();
 
 			/**
 			 * Set frameHeight to images width if not set
 			 */
-			if(!frameHeight) frameHeight = current.width;
+			if(!frameHeight) frameHeight = images[0].width;
 
 			/**
 			 * Set canvas height to images height
 			 */
-			canvas.width = current.width;
+			canvas.width = images[0].width;
 			canvas.height = frameHeight;
-
-			/**
-			 * Calculate Max Frames
-			 */
-			calculateMaxFrame(images);
 
 			/**
 			 * Draw image
 			 */
-			ctx.drawImage(current, 0, frameOffset);
-			
+			ctx.drawImage(images[0], 0, 0);
+
+			/**
+			 * Create timeline
+			 */
+			createTimeline();
+
 			/**
 			 * Resolve deferred when images is loaded
 			 */
@@ -1146,12 +1134,22 @@ function Sprite(opts){
 	}
 
 	/**
-	 * Calculate Max Frames 
-	 * by loopen images and frame dimensions by the images height
+	 * Create Timeline
+	 * Loop through images and add them to timeline array.
+	 * Add the image at key/frame and add offset for that position/frame.
+	 * Calculate endframe
 	 */
-	function calculateMaxFrame(){
+	function createTimeline(){
 		for (var i = 0; i < images.length; i++) {
-			maxFrame += images[i].height / frameHeight;
+			var img = images[i];
+			var imageFrames = img.height / frameHeight;
+			for (var u = 0; u < imageFrames; u++) {
+				timeline.push({
+					image: img,
+					offset: ((frameHeight * endFrame) % img.height) * -1
+				});
+				endFrame++;
+			};
 		};
 	}
 
@@ -1164,8 +1162,8 @@ function Sprite(opts){
 		 * Add to tick object
 		 * set isPlaying to true
 		 */
-		tick.add(update);
 		isPlayingBOOL = true;
+		tick.add(update);
 		event.trigger('started');
 	}
 
@@ -1178,8 +1176,8 @@ function Sprite(opts){
 		 * Remove object from tick
 		 * set isPlaying to false
 		 */
-		tick.remove(update);
 		isPlayingBOOL = false;
+		tick.remove(update);
 		event.trigger('paused');
 	}
 
@@ -1192,7 +1190,6 @@ function Sprite(opts){
 		 * Reset to sprite to reset
 		 * Set current to first image
 		 */
-		current = images[0];
 		frame = 0;
 	}
 
@@ -1210,8 +1207,15 @@ function Sprite(opts){
 	 * Update method for the tick
 	 */
 	function update(){
+		if(!isReverseBOOL){
+			forward();	
+		}else{
+			backward();
+		}
+
 		clear();
 		draw();
+
 		event.trigger('update', frame, isReverseBOOL);
 	}
 
@@ -1227,80 +1231,27 @@ function Sprite(opts){
 	 */
 	function draw(){
 		/**
-		 * Move image foward or backwards
-		 */
-		if(!isReverseBOOL){
-			forward();	
-		}else{
-			backward();
-		}
-
-		/**
 		 * Draw image with frameOffset
 		 */
-		ctx.drawImage(current, 0, frameOffset);
-
+		var current = timeline[frame];
+		ctx.drawImage(current.image, 0, current.offset);
 	}
 
 	function backward(){
-		/**
-		 * If frameOffset is 0
-		 * set current and frameOffset to prev and current height
-		 */
-		if(frameOffset === 0){
-			current = iterator.prev(current);
-			frameOffset = current.height * -1;
-		}
-
-		/**
-		 * Iterate frameOffset with frameHeight
-		 */
-		frameOffset += frameHeight;
-		
-		/**
-		 * Iterate on frame
-		 */
-		if(frame <= 0) frame = maxFrame;
+		frame = frame <= 0 ? endFrame : frame;
 		frame--;
-
-		/**
-		 * If current is first and frameOffset 0
-		 * trigger ended and if Loop false then pause
-		 */
-		if(iterator.isFirst() && frameOffset === 0){
+		if(frame === 0){
 			if(!loopBOOL) pause();
 			event.trigger('ended');
-		} 
+		}
 	}
 
 	function forward(){
-		/**
-		 * Iterate frameOffset with frameHeight
-		 * if larger the current.height the set to 0
-		 */
-		frameOffset -= frameHeight;
-		frameOffset %= current.height;
-
-		/**
-		 * Iterate on frame
-		 */
 		frame++;
-		frame %= maxFrame;
-
-		/**
-		 * If frameOffset equals 0
-		 * set current to next
-		 * and if first in array the trigger ended
-		 * and trigger pause if loop false
-		 */
-
-		if(frameOffset === 0){
-			current = iterator.next(current);
-			if(iterator.isFirst()){
-				if(!loopBOOL) pause();
-				frame = 0;
-				event.trigger('ended');
-			} 
+		frame = frame >= endFrame ? 0 : frame;	
+		if(frame === endFrame - 1){
+			if(!loopBOOL) pause();
+			event.trigger('ended');
 		}
 	}
 
@@ -1313,31 +1264,7 @@ function Sprite(opts){
 		/**
 		 * Calc frame 
 		 */
-		frame = _frame;
-		var frameNumber = _frame * frameHeight;
-		var offset = 0;
-
-
-		/**
-		 * Loop through images to find 
-		 * next current image to start from
-		 */
-
-		for (var i = 0; i < images.length; i++) {
-			offset += images[i].height;
-
-			/**
-			 * If frameNumber is less than the added images height
-			 * the set the current image, and set frameOffset and iterator
-			 * to the new current
-			 */
-			if(frameNumber < offset){
-				current = images[i];
-				iterator.set(current);
-				frameOffset = (frameNumber % current.height) * -1;
-				break;
-			}
-		};
+		frame = _frame - 1;
 
 		/**
 		 * Start tick
@@ -1368,10 +1295,10 @@ function Sprite(opts){
 	/**
 	 * Get end frame
 	 * @example sprite.getEndFrame()
-	 * @return {number} maxFrame
+	 * @return {number} endFrame
 	 */
 	function getEndFrame(){
-		return maxFrame - 1;
+		return endFrame - 1;
 	}
 
 	/**
@@ -1425,19 +1352,26 @@ module.exports = Sprite;
 },{"stupid-deferred":1,"stupid-event":3,"stupid-imagesloader":4,"stupid-iterator":8}],12:[function(require,module,exports){
 var Tick = require('stupid-tick');
 var Sprite = require('../../sprite');
+var fps = 25;
+var tick = Tick({fps:fps}); 
 
 document.addEventListener("DOMContentLoaded", function(event) {
-	var fps = 3;
-	var tick = Tick({fps:fps});
+	
+	sprite1();  
+
+});
+
+function sprite1(){
+	
 	var canvasHTML = document.createElement('canvas');
 	document.body.appendChild(canvasHTML);
 
 	var images = [
 		'images/test_500_01.png',
-		// 'images/test_500_02.png',
-		// 'images/test_500_03.png',
-		// 'images/test_500_04.png',
-		// 'images/test_500_05.png',
+		'images/test_500_02.png',
+		'images/test_500_03.png',
+		'images/test_500_04.png',
+		'images/test_500_05.png',
 	];
 
 	var sprite = Sprite({
@@ -1454,14 +1388,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 	sprite.on('ended', function(){
 		sprite.reverse();
-		console.log('---> END');
+		// sprite.pause();
+		console.log('- - - - - E N D E D - - - - - ');
 	});
 
 	sprite.on('update', function(_frame){
-		// console.log(_frame);
+		console.log(_frame, sprite.getEndFrame());
 	});
 
 	window.sprite = sprite;
-
-});
+}
 },{"../../sprite":11,"stupid-tick":10}]},{},[12]);
