@@ -26,11 +26,14 @@ function sprite1(){
 		tick: tick, 
 		canvas: canvasHTML,
 	});
+	
+	console.log('hasLoaded', sprite.hasLoaded());
 
 	sprite
 	.load(images)
 	.success(function(){
 		sprite.play();
+		console.log('hasLoaded', sprite.hasLoaded()); 
 	});
 
 	sprite.on('ended', function(){

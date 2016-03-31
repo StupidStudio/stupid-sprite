@@ -43,11 +43,6 @@ function Sprite(opts){
 	var event = Event();
 
 	/**
-	 * @define {boolean} Should sprite loop
-	 */
-	var isLoopingBOOL = opts.loop === undefined ? true : opts.loop;
-
-	/**
 	 * @define {array} Image array
 	 */
 	var images;
@@ -66,6 +61,11 @@ function Sprite(opts){
 	 * @define {number} Max Frames
 	 */
 	var endFrame = 0;
+
+	/**
+	 * @define {boolean} Should sprite loop
+	 */
+	var isLoopingBOOL = opts.loop === undefined ? true : opts.loop;
 
 	/**
 	 * @define {boolean} IsPlaying Boolean
@@ -326,6 +326,14 @@ function Sprite(opts){
 		}
 	}
 
+	/**
+	 * hasLoaded
+	 * @example sprite.hasLoaded()
+	 */
+	function hasLoaded(){
+		return Boolean(images);
+	}
+
 	/*
 	* Public
 	*/
@@ -345,6 +353,8 @@ function Sprite(opts){
 	self.getFrame = getFrame;
 	self.getEndFrame = getEndFrame;
 
+	self.hasLoaded = hasLoaded;
+	
 	self.on = event.on;
 
 	return self;

@@ -116,3 +116,35 @@ test('Not looping', function(t){
 		t.equal(count, 1);
 	}, 2000)
 });
+
+test('hasLoaded', function(t){
+	t.plan(2);
+	t.timeoutAfter(2000);
+
+	var canvas = document.createElement('canvas');
+	var images = [
+		'http://moves.stupid-studio.com/static/images/sprite/bjarne_01.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_02.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_03.png',
+		// 'http://moves.stupid-studio.com/static/images/sprite/bjarne_04.png',
+	];
+
+	var sprite = Sprite({
+		tick:tick, 
+		canvas: canvas
+	});
+
+	if(!sprite.hasLoaded()){
+		t.pass('success');
+	}
+
+	sprite
+	.load(images)
+	.success(function(){
+		if(sprite.hasLoaded()){
+			t.pass('success');
+		}
+	}).error(function(){
+		t.fail('error');
+	});
+});

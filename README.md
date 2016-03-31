@@ -77,4 +77,6 @@ sprite.getReverse(); // Get reverse Boolean
 
 sprite.getFrame(); // Returns current frame [Number]
 sprite.getEndFrame(); // Returns end/last frame [Number]
+
+sprite.hasLoaded(); // Returns true if images is loaded, false if not [Boolean]
 ```
