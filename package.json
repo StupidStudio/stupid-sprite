@@ -1,6 +1,6 @@
 {
   "name": "stupid-sprite",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "A simple sprite lib",
   "main": "./sprite.js",
   "scripts": {
